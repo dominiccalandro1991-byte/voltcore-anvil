@@ -14,6 +14,7 @@ import {
 } from "@/lib/engines/constants";
 import { SsrfError, assertPublicHttpUrl } from "@/lib/engines/ssrf";
 import type { Json } from "@/lib/types";
+import { isHealDenied } from "@/lib/engines/isolate";
 
 const buckets = new Map<string, TokenBucket>();
 const runCounts = new Map<string, number>();
@@ -160,6 +161,16 @@ export const sandboxJob = createServerFn({ method: "POST" })
   .validator((input: { validator_id: string; payload: unknown; seed?: number }) => input)
   .middleware([authMiddleware])
   .handler(async ({ data }) => {
+    if (
+      isHealDenied(data.validator_id) ||
+      isHealDenied(JSON.stringify(data.payload ?? {}))
+    ) {
+      return {
+        ok: false,
+        status: 403,
+        body: { error: "heal/trunk denied" } satisfies Json,
+      };
+    }
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 8000);
     try {

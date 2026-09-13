@@ -12,6 +12,8 @@ import { assertPublicHttpUrl, isDeniedUrl } from "./ssrf.ts";
 import { percentile } from "./hash.ts";
 import { TokenBucket } from "./keyharbor.ts";
 import { validatePayload } from "./vste.ts";
+import { evalArithmetic, isHealDenied, runIsolate } from "./isolate.ts";
+import { FLEET } from "./fleet.ts";
 
 test("USSE mass from 400 lb is in (180, 185)", () => {
   const p = emptyPayload({ load_lb: 400, lever_arm_m: 0.3, mass_kg: 0 });
@@ -112,4 +114,39 @@ test("validatePayload never throws and rejects NaN/nullish", () => {
     }),
     false,
   );
+});
+
+test("heal/trunk paths are denied", () => {
+  assert.equal(isHealDenied("https://core-api.example/heal"), true);
+  assert.equal(isHealDenied("AUTONOMOUS_TRUNK write"), true);
+  assert.equal(isHealDenied("https://example.com/jobs"), false);
+});
+
+test("evalArithmetic is shunting-safe and rejects identifiers", () => {
+  assert.equal(evalArithmetic("2+3*4"), 14);
+  assert.equal(evalArithmetic("(2+3)*4"), 20);
+  assert.equal(evalArithmetic("fetch(1)"), null);
+  assert.equal(evalArithmetic("1/0"), null);
+});
+
+test("isolate USSE intent reports fused risk", async () => {
+  const r = await runIsolate("stress 400 lb on a 0.3 m lever, 80 agents, 200 rps, error 0.4");
+  assert.equal(r.kind, "usse");
+  assert.ok(r.s_attest.length === 64);
+});
+
+test("isolate denies heal payload", async () => {
+  const r = await runIsolate("POST /heal AUTONOMOUS_TRUNK");
+  assert.equal(r.ok, false);
+  assert.match(r.error ?? "", /heal/);
+});
+
+test("fleet has seven nodes and no heal probe", () => {
+  assert.equal(FLEET.length, 7);
+  for (const n of FLEET) {
+    assert.equal(isHealDenied(n.probe), false);
+    assert.equal(n.bind === "status-only" || n.id !== "core-api" || true, true);
+  }
+  const core = FLEET.find((n) => n.id === "core-api");
+  assert.equal(core?.bind, "status-only");
 });

@@ -5,6 +5,7 @@ import { iso } from "@/lib/utils";
 import type { MessageRow, ThreadRow } from "@/lib/types";
 import { parseSpec, USSE_INTENT, runUsse, emptyPayload } from "@/lib/engines/usse";
 import { XAI_CAP } from "@/lib/engines/constants";
+import { isHealDenied } from "@/lib/engines/isolate";
 
 const xaiByUser = new Map<string, number>();
 
@@ -55,6 +56,9 @@ export const sendConsole = createServerFn({ method: "POST" })
   .validator((input: { threadId?: string; content: string }) => input)
   .middleware([authMiddleware])
   .handler(async ({ context, data }) => {
+    if (isHealDenied(data.content)) {
+      throw new Error("heal/trunk denied");
+    }
     const sql = await getSql();
     let threadId = data.threadId;
     if (!threadId) {
@@ -109,11 +113,16 @@ export const sendConsole = createServerFn({ method: "POST" })
           where thread_id = ${threadId} and user_id = ${context.userId}
           order by created_at desc limit 12
         `;
+        const prefs = await sql<{ instructions: string }>`
+          select instructions from anvil_prefs where user_id = ${context.userId} limit 1
+        `;
+        const extra = (prefs[0]?.instructions ?? "").slice(0, 800);
         const messages = [
           {
             role: "system",
             content:
-              "You are ANVIL Console, operator surface for VOLTCORE ANVIL. Help run USSE (physical/digital/unified), VSTE four vectors, live HTTP probes with SSRF deny, and Map B labs. Never request secrets. Never suggest attacking third-party origins. Caps: 50 VU, 120s, 1000 req. Fail risk 0.85. Be concise, industrial, no emoji.",
+              "You are ANVIL Console, operator surface for VOLTCORE ANVIL. Help run USSE (physical/digital/unified), VSTE four vectors, live HTTP probes with SSRF deny, Map B labs, Mesh fleet status, and NASE isolate. Never request secrets. Never suggest attacking third-party origins. Never call /heal or AUTONOMOUS_TRUNK. Caps: 50 VU, 120s, 1000 req. Fail risk 0.85. Be concise, industrial, no emoji." +
+              (extra ? ` Operator instructions: ${extra}` : ""),
           },
           ...history
             .reverse()

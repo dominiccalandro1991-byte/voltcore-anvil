@@ -7,6 +7,7 @@ import { runUsse, emptyPayload, type UssePayload } from "@/lib/engines/usse";
 import { exportAttestation } from "@/lib/engines/nase";
 import { eng04Anomaly, eng05Aegis, eng23Dojo } from "@/lib/engines/map-b";
 import type { RunMode, EngineId, RunStatus } from "@/lib/engines/constants";
+import { emitMeshEvent } from "@/lib/server/mesh";
 
 function asRun(r: Record<string, unknown>): RunRow {
   const summary: Json =
@@ -372,6 +373,13 @@ export const executeUsse = createServerFn({ method: "POST" })
     const rows = await sql<Record<string, unknown>>`
       select * from anvil_runs where id = ${id} and user_id = ${context.userId}
     `;
+    if (!report.passed) {
+      void emitMeshEvent(context.userId, "usse-fail", {
+        failure_risk: report.fused.failure_risk,
+        s_attest: att.s_attest,
+        mode: payload.mode,
+      }).catch(() => undefined);
+    }
     return { run: asRun(rows[0]!), report, attestation: att };
   });
 

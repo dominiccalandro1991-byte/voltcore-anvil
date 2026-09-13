@@ -16,6 +16,7 @@ import { fmtMs, fmtNum, fmtPct } from "@/lib/utils";
 import { HISTOGRAM_EDGES, type RunMode } from "@/lib/engines/constants";
 import { emptyHistogram } from "@/lib/engines/hash";
 import type { Tick } from "@/lib/engines/probe";
+import { Link } from "@tanstack/react-router";
 
 const MODES: { id: RunMode; label: string; hint: string }[] = [
   { id: "unified", label: "Unified", hint: "USSE fused risk" },
@@ -126,7 +127,12 @@ export function CommandCenter() {
           <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Command center</p>
           <h1 className="text-2xl font-medium">Stress campaign</h1>
         </div>
-        <p className="text-xs font-mono text-muted tabular">{s.statusNote}</p>
+        <div className="flex items-center gap-3">
+          <Link to="/mesh" className="text-xs text-primary hover:underline">
+            Mesh fleet
+          </Link>
+          <p className="text-xs font-mono text-muted tabular">{s.statusNote}</p>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">

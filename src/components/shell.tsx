@@ -5,6 +5,7 @@ import {
   History,
   LayoutDashboard,
   MessageSquare,
+  Network,
   Settings,
   Shield,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const NAV = [
   { to: "/", label: "Command", icon: LayoutDashboard },
   { to: "/labs", label: "Labs", icon: FlaskConical },
   { to: "/attest", label: "Attest", icon: Shield },
+  { to: "/mesh", label: "Mesh", icon: Network },
   { to: "/history", label: "History", icon: History },
   { to: "/console", label: "Console", icon: MessageSquare },
   { to: "/settings", label: "Settings", icon: Settings },
@@ -91,7 +93,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 min-h-0 pb-20 md:pb-0">{children}</main>
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-surface/95 backdrop-blur-sm">
-          <div className="grid grid-cols-6">
+          <div className="grid grid-cols-7">
             {NAV.map((n) => {
               const Icon = n.icon;
               const active = path === n.to;

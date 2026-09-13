@@ -1,8 +1,6 @@
 # VOLTCORE ANVIL
 
-Signed-in dual-engine stress command center. Composes frozen **USSE** (physical / digital / unified fusion, NASE Δt = 30 s, fail at 0.85), **VSTE** (four vectors: `monte_carlo_fuzz` N=800, complexity {10,100,1000}, memory 48×256 KiB, `fault_injection`), and Map B **live HTTP** (SSRF deny, 5 s, max 8, HEAD→GET) into a bounded load loop (≤50 VU, ≤120 s, ≤1000 req, KeyHarbor).
-
-Live: [github.com/dominiccalandro1991-byte/voltcore-anvil](https://github.com/dominiccalandro1991-byte/voltcore-anvil)
+Signed-in stress command center. Composes frozen **USSE** (physical / digital / unified fusion, NASE Δt = 30 s, fail at 0.85), **VSTE** (four vectors: monte_carlo_fuzz N=800, complexity {10,100,1000}, memory 48×256 KiB, fault_injection), and Map B **live HTTP** (SSRF deny, 5 s, max 8, HEAD→GET) into a bounded load loop (≤50 VU, ≤120 s, ≤1000 req, KeyHarbor).
 
 ## Modes
 
@@ -13,14 +11,9 @@ Live: [github.com/dominiccalandro1991-byte/voltcore-anvil](https://github.com/do
 | virtual | VSTE | Fuzz, complexity, heap, named fault probes |
 | hybrid | VSTE 1–3 + subsample | In-process vectors plus ≤8 live probes |
 
-## Surfaces
+## Mesh
 
-- **Command** — mode picker, ownership attestation, gauges, live ticks
-- **Labs** — Map B ENG-01…25 instruments (not 25 load generators)
-- **Attest** — Map C φ-vector, ω_k = 1/25, `S_attest`
-- **History** — last 40 runs, Markdown / JSON export
-- **Console** — operator chat; USSE intents run locally; grok-4.5 capped at 8
-- **Settings** — KeyHarbor C/R, safety copy, no Stripe, no heal
+Fleet status for sibling repos (ANVIL, ASML Nexus, Orbit, core-api, TrueTurn, Lumen, Nano-Sandbox). NASE isolate runs token / math / JSON / USSE analysis in-process. Remote connector hits `/jobs` only.
 
 ## Safety
 
@@ -28,18 +21,21 @@ Live: [github.com/dominiccalandro1991-byte/voltcore-anvil](https://github.com/do
 - SSRF deny: localhost, RFC1918, link-local, `.local`, `.internal`
 - Live caps: 50 VU / 120 s / 1000 requests / linear ramp
 - No `/heal`, no trunk write, no secrets in git
-- One database: Neon (PGLite fallback in preview). Not Supabase.
+- One database vendor: Neon (PGLite in preview)
 
 ## Stack
 
-TanStack Start, React 19, Tailwind v4, Better Auth (Google + X via Grok broker), Neon Postgres.
+TanStack Start, Better Auth (Google + X), Neon Postgres (PGLite in preview).
 
-Auth is required. Every server function uses `authMiddleware`. Queries are scoped to `context.userId`.
+Auth is required. Runs are scoped to `context.userId`.
 
-## Verify
+## Inspection directive (agents)
 
-```text
-USSE 400 lb × 0.3 m lever → mass_kg ∈ (180, 185)
-High utilization + digital pressure → failure_risk ≥ 0.85 → failed
-http://127.0.0.1 rejected by SSRF
-```
+Before mutating this repository, verify:
+
+1. **core-api** bindings are status / HMAC only — never `/heal` or `AUTONOMOUS_TRUNK`.
+2. **voltcore-command-center** is observability, not a write trunk.
+3. Database vendor is **Neon**. Do not add Supabase alongside it.
+4. Auth is Google + X via the Grok broker. Email/password stays off unless the owner asks.
+5. Stripe, CRM, social feeds, GPS maps, and native store shells belong in sibling repos — not this command center.
+6. Live HTTP probes require ownership attestation and the SSRF denylist.

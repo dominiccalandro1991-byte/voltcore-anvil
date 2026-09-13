@@ -1,6 +1,6 @@
-import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { AppShell, AnvilMark } from "./shell";
+import { LoginCard } from "./login-card";
 import type { ReactNode } from "react";
 
 export function Splash() {
@@ -19,6 +19,6 @@ export function Splash() {
 export function Authed({ children }: { children: ReactNode }) {
   const { user, isPending } = useCurrentUserState();
   if (isPending) return <Splash />;
-  if (!user) return <RedirectToSignIn />;
+  if (!user) return <LoginCard />;
   return <AppShell>{children}</AppShell>;
 }
