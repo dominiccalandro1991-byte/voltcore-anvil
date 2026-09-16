@@ -1,0 +1,20 @@
+name: voltcore-heartbeat
+on:
+  schedule:
+    - cron: "* * * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "voltcore/**"
+      - ".github/workflows/voltcore-heartbeat.yml"
+jobs:
+  beat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: POST Dual-Rail heartbeat
+        env:
+          VOLTCORE_LANE: "voltcore-anvil"
+        run: node voltcore/heartbeat.mjs
