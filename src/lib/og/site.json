@@ -1,5 +1,7 @@
 {
-  "title": "VOLTCORE ANVIL",
+  "title": "VoltCore Anvil",
+  "description": "Mesh hardening forge. Dual stress testers, ingest, Vercel pack, 31-lane telemetry.",
+  "type": "website",
   "card": "custom",
-  "description": "Industrial stress command center for live web apps and APIs."
+  "color": "08090b"
 }

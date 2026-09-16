@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #07090c;
-  --color-surface: #10151c;
-  --color-raised: #161d26;
-  --color-fg: #e8f0f2;
-  --color-muted: #8aa0a8;
-  --color-primary: #2ee6d6;
-  --color-primary-fg: #04110f;
-  --color-border: #243038;
-  --color-danger: #ff4d4d;
-  --color-warn: #f5b942;
-  --color-ok: #2ee6d6;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-bg: #08090b;
+  --color-surface: #111316;
+  --color-raised: #181b20;
+  --color-fg: #e8ebea;
+  --color-muted: #8b9290;
+  --color-subtle: #5c6361;
+  --color-primary: #6ee7c5;
+  --color-primary-fg: #061410;
+  --color-border: #23272c;
+  --color-danger: #e06b70;
+  --color-warn: #c4b08a;
+  --font-sans: "Segoe UI", "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 }
 
 @layer base {
@@ -29,17 +29,19 @@
   html,
   body,
   #app {
+    min-height: 100dvh;
     background: var(--color-bg);
     color: var(--color-fg);
-    min-height: 100%;
   }
   body {
     font-family: var(--font-sans);
     line-height: 1.5;
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
   }
   p {
     text-wrap: pretty;
@@ -48,36 +50,41 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  * {
-    border-color: var(--color-border);
-  }
-  :focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-  }
-  input, textarea, select {
-    font: inherit;
-    color: inherit;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-.tabular {
-  font-variant-numeric: tabular-nums;
+.live-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
-.scanline {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--color-fg) 3%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
+.tick-enter {
+  animation: tick-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

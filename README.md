@@ -1,41 +1,47 @@
-# VOLTCORE ANVIL
+# VOLTCORE ANVIL — HammerForge
 
-Signed-in stress command center. Composes frozen **USSE** (physical / digital / unified fusion, NASE Δt = 30 s, fail at 0.85), **VSTE** (four vectors: monte_carlo_fuzz N=800, complexity {10,100,1000}, memory 48×256 KiB, fault_injection), and Map B **live HTTP** (SSRF deny, 5 s, max 8, HEAD→GET) into a bounded load loop (≤50 VU, ≤120 s, ≤1000 req, KeyHarbor).
+Mesh hardening forge. Ingest a tree, strip secrets, compile the graph, dual-stress it, pack a Vercel manifest, post the verdict to the Dual-Rail trunk.
 
-## Modes
+Replaces the retired **USSE / VSTE / NASE** command center (`dd94da8`). Auth is off. No secrets in git. No GHA minute crons. Trunk writes are `POST /api/v1/events` only — never `/heal`.
 
-| Mode | Engine | What it proves |
-|---|---|---|
-| physical / digital / unified | USSE | Torque, bending, utilization, digital pressure, fused risk |
-| live | probe-live | Status, RTT, error rate on operator-owned public URLs |
-| virtual | VSTE | Fuzz, complexity, heap, named fault probes |
-| hybrid | VSTE 1–3 + subsample | In-process vectors plus ≤8 live probes |
+## Pipeline
 
-## Mesh
+| Phase | Engine | Big-O | Proof |
+|---|---|---|---|
+| ingest | hashed bundle + merkle | O(n) | empty merkle is stable |
+| strip | FORBID paths + credential scan | O(n) | `.env` / `sk-` / service_role dropped |
+| compile | routes, import graph, cycles | O(n+e) | racy fixture flags cycles |
+| stress | **Aegis** heap 48 ticks · **Striker** 8-worker queue 48 ticks | O(1)/tick | leaky reject · quench harden |
+| score | memory / concurrency / compile / hygiene | O(f) | hardened ≥ 78, reject < 52 |
+| pack | Vercel v3 routes + rewrites + headers | O(r) | quench emits hybrid pack |
+| sync | `anvil.forge.complete` → core-api | O(1) | HTTP 202 |
 
-Fleet status for sibling repos (ANVIL, ASML Nexus, Orbit, core-api, TrueTurn, Lumen, Nano-Sandbox). NASE isolate runs token / math / JSON / USSE analysis in-process. Remote connector hits `/jobs` only.
+Fixtures: **Leaky SPA** (reject), **Racy API** (conditional, concurrency collapse), **Quench SSR** (harden). Paste-tree and file drop also ingest.
+
+## Lattice
+
+31-lane Phosphor lattice. Source key `voltcore-anvil`. Trunk `https://core-api.dominic-calandro1991.workers.dev`. Client 60s heartbeat + 4s lattice poll. Cloudflare Worker cron is the fleet clock — do not re-enable GHA `* * * * *`.
+
+## Tests
+
+```
+npm test
+```
+
+HammerForge suite (`src/lib/anvil/hammer-forge.test.ts`):
+
+1. lattice ceiling is 31
+2. leaky fixture is rejected after dual stress (Aegis + strip)
+3. quench fixture hardens (pack + rewrites)
+4. racy fixture flags concurrency (Striker race/deadlock)
+5. empty bundle merkle is stable
 
 ## Safety
 
-- Ownership attestation required and persisted
-- SSRF deny: localhost, RFC1918, link-local, `.local`, `.internal`
-- Live caps: 50 VU / 120 s / 1000 requests / linear ramp
-- No `/heal`, no trunk write, no secrets in git
-- One database vendor: Neon (PGLite in preview)
+- FORBID: `.env`, secrets/, credentials, `id_rsa`, `ghp_`, `service_role`, `wrangler.toml`
+- Dual-Rail files untouched. No Dual-Rail secrets on Vercel.
+- Mesh POST is public events ingest, HMAC heal is out of scope.
 
 ## Stack
 
-TanStack Start, Better Auth (Google + X), Neon Postgres (PGLite in preview).
-
-Auth is required. Runs are scoped to `context.userId`.
-
-## Inspection directive (agents)
-
-Before mutating this repository, verify:
-
-1. **core-api** bindings are status / HMAC only — never `/heal` or `AUTONOMOUS_TRUNK`.
-2. **voltcore-command-center** is observability, not a write trunk.
-3. Database vendor is **Neon**. Do not add Supabase alongside it.
-4. Auth is Google + X via the Grok broker. Email/password stays off unless the owner asks.
-5. Stripe, CRM, social feeds, GPS maps, and native store shells belong in sibling repos — not this command center.
-6. Live HTTP probes require ownership attestation and the SSRF denylist.
+TanStack Start, Zustand, localStorage history. No Neon writes. Preview binds `0.0.0.0:8080`.

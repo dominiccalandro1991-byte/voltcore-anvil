@@ -1,57 +1,57 @@
 #!/usr/bin/env node
 /**
- * VOLTCORE Dual-Rail heartbeat. No secrets.
- * POST /api/v1/events — source must equal Phosphor lane id.
+ * VoltCore Anvil → Dual-Rail trunk. In-process timer or `node voltcore/heartbeat.mjs --loop`.
+ * Never a GitHub Actions minute cron.
  */
-import { readFileSync, existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+const TRUNK = (process.env.VOLTCORE_TRUNK || "https://core-api.dominic-calandro1991.workers.dev").replace(/\/$/, "");
+const SOURCE = process.env.VOLTCORE_SOURCE || "voltcore-anvil";
+const INTERVAL_MS = Number(process.env.VOLTCORE_INTERVAL_MS || 60_000);
 
-const TRUNK = "https://core-api.dominic-calandro1991.workers.dev";
-const SOURCE = (process.env.VOLTCORE_LANE || "").trim();
-const here = dirname(fileURLToPath(import.meta.url));
-const diagPath = join(here, "diagnostics.json");
-
-let diagnostics = {};
-if (existsSync(diagPath)) {
-  try {
-    diagnostics = JSON.parse(readFileSync(diagPath, "utf8"));
-  } catch {
-    diagnostics = { parse_error: true };
-  }
+export function beatBody({ incomplete = false, surface = "node" } = {}) {
+  return {
+    source: SOURCE,
+    type: incomplete ? "health.diagnostic" : "health.heartbeat",
+    severity: "info",
+    payload: {
+      status: incomplete ? "incomplete" : "live",
+      surface,
+      interval_s: Math.round(INTERVAL_MS / 1000),
+      incomplete,
+      missing_dependencies: incomplete ? ["runtime verified"] : [],
+      required_build_specs: incomplete
+        ? ["package.json", "src tree", "voltcore/heartbeat.mjs"]
+        : [],
+    },
+  };
 }
 
-if (!SOURCE) {
-  console.error("VOLTCORE_LANE required");
-  process.exit(1);
+export async function beat(opts = {}) {
+  const res = await fetch(`${TRUNK}/api/v1/events`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(beatBody(opts)),
+  });
+  const text = await res.text();
+  return { ok: res.ok, status: res.status, body: text.slice(0, 400) };
 }
 
-const incomplete = Boolean(diagnostics.incomplete);
-const body = {
-  source: SOURCE,
-  event_type: incomplete ? "health.diagnostic" : "health.heartbeat",
-  severity: incomplete ? "warn" : "info",
-  payload: {
-    status: incomplete ? "incomplete" : "live",
-    surface: "gha",
-    interval_s: 60,
-    repo: diagnostics.repo || null,
-    incomplete,
-    missing_dependencies: diagnostics.missing_dependencies || [],
-    required_build_specs: diagnostics.required_build_specs || [],
-    file_count: diagnostics.file_count ?? null,
-    ts: Date.now(),
-  },
-};
-
-const res = await fetch(`${TRUNK}/api/v1/events`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(body),
-});
-const text = await res.text();
-if (!res.ok) {
-  console.error("trunk", res.status, text.slice(0, 300));
-  process.exit(1);
+export function startHeartbeat(opts = {}) {
+  const tick = () => {
+    void beat(opts).catch(() => {});
+  };
+  tick();
+  return setInterval(tick, INTERVAL_MS);
 }
-console.log("ok", SOURCE, res.status, incomplete ? "diagnostic" : "heartbeat");
+
+const isCli = process.argv[1] && /heartbeat\.mjs$/.test(process.argv[1]);
+if (isCli) {
+  const incomplete = process.argv.includes("--diagnostic");
+  const loop = process.argv.includes("--loop");
+  const run = async () => {
+    const result = await beat({ incomplete, surface: "node" });
+    console.log(JSON.stringify(result));
+    if (!result.ok && !loop) process.exit(1);
+  };
+  await run();
+  if (loop) setInterval(() => void run(), INTERVAL_MS);
+}

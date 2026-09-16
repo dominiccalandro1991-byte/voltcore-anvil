@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Authed } from "@/components/guard";
-import { CommandCenter } from "@/components/command-center";
+import { ForgeApp } from "@/components/anvil/forge-app";
+import { pullEvents, pullHealth } from "@/lib/anvil/telemetry";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  loader: async () => {
+    const [health, events] = await Promise.all([pullHealth(), pullEvents(200)]);
+    return { health, events, now: Date.now() };
+  },
+  component: Home,
+});
 
 function Home() {
-  return (
-    <Authed>
-      <CommandCenter />
-    </Authed>
-  );
+  const initial = Route.useLoaderData();
+  return <ForgeApp initial={initial} />;
 }
