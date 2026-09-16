@@ -1,0 +1,28 @@
+{
+  "repo": "dominiccalandro1991-byte/voltcore-anvil",
+  "incomplete": false,
+  "missing_dependencies": [],
+  "required_build_specs": [
+    "voltcore-heartbeat workflow"
+  ],
+  "file_count": 17,
+  "root_entries": [
+    ".gitignore",
+    ".grok",
+    ".prettierrc",
+    "AGENTS.md",
+    "AGENTS.project.md",
+    "README.md",
+    "eslint.config.mjs",
+    "migrations",
+    "package-lock.json",
+    "package.json",
+    "public",
+    "scripts",
+    "server",
+    "src",
+    "startup.sh",
+    "tsconfig.json",
+    "vite.config.ts"
+  ]
+}
