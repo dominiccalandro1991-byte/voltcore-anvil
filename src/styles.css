@@ -6,6 +6,7 @@
   --color-raised: #161d26;
   --color-fg: #e8f0f2;
   --color-muted: #8aa0a8;
+  --color-subtle: #5c6b72;
   --color-primary: #2ee6d6;
   --color-primary-fg: #04110f;
   --color-border: #243038;
@@ -80,4 +81,31 @@
   );
   background-size: 100% 4px;
   pointer-events: none;
+}
+
+.live-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.tick-enter {
+  animation: tick-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

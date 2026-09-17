@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
+  Anvil,
   FlaskConical,
   History,
   LayoutDashboard,
@@ -20,6 +21,7 @@ const NAV = [
   { to: "/labs", label: "Labs", icon: FlaskConical },
   { to: "/attest", label: "Attest", icon: Shield },
   { to: "/mesh", label: "Mesh", icon: Network },
+  { to: "/forge", label: "Forge", icon: Anvil },
   { to: "/history", label: "History", icon: History },
   { to: "/console", label: "Console", icon: MessageSquare },
   { to: "/settings", label: "Settings", icon: Settings },
@@ -93,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 min-h-0 pb-20 md:pb-0">{children}</main>
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-surface/95 backdrop-blur-sm">
-          <div className="grid grid-cols-7">
+          <div className="flex overflow-x-auto">
             {NAV.map((n) => {
               const Icon = n.icon;
               const active = path === n.to;
@@ -102,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={n.to}
                   to={n.to}
                   className={cn(
-                    "flex flex-col items-center justify-center min-h-16 gap-1 text-[10px] uppercase tracking-wider",
+                    "flex min-w-[4.5rem] flex-col items-center justify-center min-h-16 gap-1 text-[10px] uppercase tracking-wider",
                     active ? "text-primary" : "text-muted",
                   )}
                 >

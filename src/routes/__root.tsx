@@ -22,7 +22,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Signed-in stress command center: USSE, VSTE, live HTTP probes, NASE S_attest.",
+          "Signed-in USSE/VSTE/NASE control plane. Authenticated HammerForge hardening module at /forge. Aegis and Striker are in-process simulations, not remote testers.",
       },
       { name: "theme-color", content: "#07090c" },
     ],

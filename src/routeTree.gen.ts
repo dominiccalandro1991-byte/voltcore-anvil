@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AttestRouteImport } from './routes/attest'
 import { Route as ConsoleRouteImport } from './routes/console'
+import { Route as ForgeRouteImport } from './routes/forge'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LoginRouteImport } from './routes/login'
@@ -32,6 +33,11 @@ const AttestRoute = AttestRouteImport.update({
 const ConsoleRoute = ConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgeRoute = ForgeRouteImport.update({
+  id: '/forge',
+  path: '/forge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attest': typeof AttestRoute
   '/console': typeof ConsoleRoute
+  '/forge': typeof ForgeRoute
   '/history': typeof HistoryRoute
   '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attest': typeof AttestRoute
   '/console': typeof ConsoleRoute
+  '/forge': typeof ForgeRoute
   '/history': typeof HistoryRoute
   '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/attest': typeof AttestRoute
   '/console': typeof ConsoleRoute
+  '/forge': typeof ForgeRoute
   '/history': typeof HistoryRoute
   '/labs': typeof LabsRoute
   '/login': typeof LoginRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/attest'
     | '/console'
+    | '/forge'
     | '/history'
     | '/labs'
     | '/login'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/attest'
     | '/console'
+    | '/forge'
     | '/history'
     | '/labs'
     | '/login'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/attest'
     | '/console'
+    | '/forge'
     | '/history'
     | '/labs'
     | '/login'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AttestRoute: typeof AttestRoute
   ConsoleRoute: typeof ConsoleRoute
+  ForgeRoute: typeof ForgeRoute
   HistoryRoute: typeof HistoryRoute
   LabsRoute: typeof LabsRoute
   LoginRoute: typeof LoginRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/console'
       fullPath: '/console'
       preLoaderRoute: typeof ConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forge': {
+      id: '/forge'
+      path: '/forge'
+      fullPath: '/forge'
+      preLoaderRoute: typeof ForgeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AttestRoute: AttestRoute,
   ConsoleRoute: ConsoleRoute,
+  ForgeRoute: ForgeRoute,
   HistoryRoute: HistoryRoute,
   LabsRoute: LabsRoute,
   LoginRoute: LoginRoute,
